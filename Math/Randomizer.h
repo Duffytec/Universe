@@ -8,13 +8,14 @@
 *                 consistent cross-platform results.
 *******************************************************************************/
 
-#define M_PI 3.1415926
-
-
 #ifndef RANDOMIZER_H_INCLUDED
 #define RANDOMIZER_H_INCLUDED
 
 #include <cmath>
+
+#ifndef M_PI
+#define M_PI 3.1415926
+#endif
 
 #define RANDOM_MAX  0x7FFF
 #define LCG_A       214013

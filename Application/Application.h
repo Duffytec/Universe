@@ -9,7 +9,13 @@
 #ifndef APPLICATION_H_INCLUDED
 #define APPLICATION_H_INCLUDED
 
+#ifndef GLFW_INCLUDE_NONE
+#define GLFW_INCLUDE_NONE
+#endif
+#include <GLFW/glfw3.h>
+
 #include "../Shaders/ShaderManager.h"
+#include <GL/glu.h>
 #include "../Geometry/Skybox.h"
 #include "../Geometry/Planet.h"
 #include "../Geometry/Star.h"
@@ -39,6 +45,7 @@ class Application
 {
   private:
     // Instance variables
+    GLFWwindow                  *window;
     int                         windowWidth, windowHeight;
     Camera<double>              *camera;
     FpsCounter<double>          *fpsCounter;
@@ -63,7 +70,7 @@ class Application
 
   public:
     // Constructors
-    Application();
+    Application(GLFWwindow *window);
 
     // Destructor
     ~Application();
@@ -75,8 +82,8 @@ class Application
 };
 
 // Default constructor
-Application::Application()
-  : windowWidth(1), windowHeight(1)
+Application::Application(GLFWwindow *window)
+  : window(window), windowWidth(1), windowHeight(1)
 {
   // Initialize shaders
   PerlinNoise<double>::GetPermutationTexture();
@@ -241,7 +248,7 @@ void Application::ResetScene()
 
 void Application::HandleKey(int key, int action)
 {
-  if (action == GLFW_PRESS)
+  if (action == GLFW_PRESS || action == GLFW_REPEAT)
   {
     switch (key)
     {
@@ -260,17 +267,17 @@ void Application::HandleKey(int key, int action)
       case GLFW_KEY_F5:
         reverseTime = !reverseTime;
         break;
-      case '0':
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-      case '6':
-      case '7':
-      case '8':
-      case '9':
-        animationTimeUnit = (TimeUnit)(key - '0');
+      case GLFW_KEY_0:
+      case GLFW_KEY_1:
+      case GLFW_KEY_2:
+      case GLFW_KEY_3:
+      case GLFW_KEY_4:
+      case GLFW_KEY_5:
+      case GLFW_KEY_6:
+      case GLFW_KEY_7:
+      case GLFW_KEY_8:
+      case GLFW_KEY_9:
+        animationTimeUnit = (TimeUnit)(key - GLFW_KEY_0);
         break;
       case GLFW_KEY_KP_ADD:
         QuadtreeTerrainNode::SetSplitDistanceScale(QuadtreeTerrainNode::GetSplitDistanceScale() + 0.1);
@@ -278,7 +285,7 @@ void Application::HandleKey(int key, int action)
       case GLFW_KEY_KP_SUBTRACT:
         QuadtreeTerrainNode::SetSplitDistanceScale(QuadtreeTerrainNode::GetSplitDistanceScale() - 0.1);
         break;
-      case GLFW_KEY_DEL:
+      case GLFW_KEY_DELETE:
         // Delete hovered object
         if (hoveredAstronomicalObjectIndex >= 0)
         {
@@ -309,13 +316,13 @@ void Application::HandleKey(int key, int action)
           }
         }
         return;
-      case 'R':
+      case GLFW_KEY_R:
         ResetScene();
         return;
     }
 
     // If Alt is being held; activate advanced controls
-    if (glfwGetKey(GLFW_KEY_LALT))
+    if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
     {
       // If an object is being hovered
       if (hoveredAstronomicalObjectIndex >= 0)
@@ -324,16 +331,16 @@ void Application::HandleKey(int key, int action)
         if (Planet *planet = dynamic_cast<Planet*>(astronomicalObjects[hoveredAstronomicalObjectIndex]))
         {
           // Determine if any property should be changed
-          const bool changeHeightScale  = key == 'T';
-          const bool changeOctaves      = key == 'O';
-          const bool changeGain         = key == 'G';
-          const bool changeLacunarity   = key == 'L';
-          const bool changeOffset       = key == 'F';
-          const bool changeH            = key == 'H';
+          const bool changeHeightScale  = key == GLFW_KEY_T;
+          const bool changeOctaves      = key == GLFW_KEY_O;
+          const bool changeGain         = key == GLFW_KEY_G;
+          const bool changeLacunarity   = key == GLFW_KEY_L;
+          const bool changeOffset       = key == GLFW_KEY_F;
+          const bool changeH            = key == GLFW_KEY_H;
           if (changeHeightScale || changeOctaves || changeGain ||changeLacunarity || changeOffset || changeH)
           {
             // Shift reverses the effect
-            const bool reverse = glfwGetKey(GLFW_KEY_LSHIFT);
+            const bool reverse = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
 
             // Get current properties
             double heightScale, gain, lacunarity, offset, h;
@@ -432,30 +439,32 @@ void Application::Move(const double frameTime)
 
   // Update the mouse position
   static Vector2<int> mousePositionLast(0, 0);
-  Vector2<int> mousePosition;
-  glfwGetMousePos(&mousePosition.x, &mousePosition.y);
+  double mouseX = 0.0;
+  double mouseY = 0.0;
+  glfwGetCursorPos(window, &mouseX, &mouseY);
+  Vector2<int> mousePosition((int)mouseX, (int)mouseY);
   const Vector2<int> mouseDelta = mousePosition - mousePositionLast;
   mousePositionLast = mousePosition;
 
   // Calculate camera velocity and rotation
-  const Vector3<double> velocity = Vector3<double>(glfwGetKey('A') - glfwGetKey('D'), 0.0, glfwGetKey('W') - glfwGetKey('S')) * movementSpeed;
-  const Vector3<double> angularVelocity = Vector3<double>(glfwGetKey(GLFW_KEY_UP)   - glfwGetKey(GLFW_KEY_DOWN),
-                                                          glfwGetKey(GLFW_KEY_LEFT) - glfwGetKey(GLFW_KEY_RIGHT),
-                                                          glfwGetKey('E')           - glfwGetKey('Q'))
+  const Vector3<double> velocity = Vector3<double>(glfwGetKey(window, GLFW_KEY_A) - glfwGetKey(window, GLFW_KEY_D), 0.0, glfwGetKey(window, GLFW_KEY_W) - glfwGetKey(window, GLFW_KEY_S)) * movementSpeed;
+  const Vector3<double> angularVelocity = Vector3<double>(glfwGetKey(window, GLFW_KEY_UP)   - glfwGetKey(window, GLFW_KEY_DOWN),
+                                                          glfwGetKey(window, GLFW_KEY_LEFT) - glfwGetKey(window, GLFW_KEY_RIGHT),
+                                                          glfwGetKey(window, GLFW_KEY_E)    - glfwGetKey(window, GLFW_KEY_Q))
                                                           * CAMERA_ROTATION_SPEED;
   Vector3<double> rotation(0.0);
   Vector3<double> translation(0.0);
 
   // If left-click dragging; rotate the camera
-  if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT))
+  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     rotation += Vector3<double>(mouseDelta.y, -mouseDelta.x, 0.0) * 0.005 * CAMERA_ROTATION_SPEED;
 
   // If middle-click dragging; translate the camera
-  if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_MIDDLE))
+  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
     translation += Vector3<double>(mouseDelta.x, mouseDelta.y, 0.0) * -0.01 * movementSpeed;
 
   // If right-click dragging; translate the camera
-  if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT))
+  if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
     translation.z += (mouseDelta.y + mouseDelta.x) * 0.05 * movementSpeed;
 
   // Update the camera
@@ -501,7 +510,7 @@ bool GetLineSphereIntersection(const Vector3<double> &rayStart, const Vector3<do
 void Application::Update(const double frameTime)
 {
   // Get window size
-  glfwGetWindowSize(&windowWidth, &windowHeight);
+  glfwGetWindowSize(window, &windowWidth, &windowHeight);
   windowWidth   = max(windowWidth,  1);
   windowHeight  = max(windowHeight, 1);
 
@@ -534,8 +543,10 @@ void Application::Update(const double frameTime)
       glGetIntegerv(GL_VIEWPORT, viewport);
 
       // Perform picking
-      Vector2<int> mousePosInt;
-      glfwGetMousePos(&mousePosInt.x, &mousePosInt.y);
+      double mouseX = 0.0;
+      double mouseY = 0.0;
+      glfwGetCursorPos(window, &mouseX, &mouseY);
+      Vector2<int> mousePosInt((int)mouseX, (int)mouseY);
       const Vector2<double> mousePos(mousePosInt.x, viewport[3] - mousePosInt.y);
       Vector3<double> rayStart, rayEnd;
       gluUnProject((double)mousePos.x, (double)mousePos.y, 0.0, modelview, projection, viewport, &rayStart.x, &rayStart.y, &rayStart.z);
@@ -686,8 +697,10 @@ void Application::Render() const
   // If an object is hovered
   if (hoveredAstronomicalObjectIndex >= 0 && Planet::GetRenderOrbits())
   {
-    Vector2<int> mousePosition;
-    glfwGetMousePos(&mousePosition.x, &mousePosition.y);
+    double mouseX = 0.0;
+    double mouseY = 0.0;
+    glfwGetCursorPos(window, &mouseX, &mouseY);
+    Vector2<int> mousePosition((int)mouseX, (int)mouseY);
     textTool->RenderText(astronomicalObjects[hoveredAstronomicalObjectIndex]->GetString().c_str(), mousePosition.x + 14, mousePosition.y);
   }
 
@@ -695,7 +708,7 @@ void Application::Render() const
   glPopAttrib();
 
   // Swap the front buffer with the back buffer
-  glfwSwapBuffers();
+  glfwSwapBuffers(window);
 }
 
 #endif
