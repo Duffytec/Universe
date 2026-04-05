@@ -45,4 +45,11 @@ file(GLOB_RECURSE Shader ${CMAKE_CURRENT_SOURCE_DIR}/Shaders/ShaderManager.cpp)
 
 add_executable(universe ProcedurusMain.cpp ${Application} ${Geometry} ${Math} ${Shader})
 
+# M_PI is not in ISO C++; MSVC needs _USE_MATH_DEFINES, GCC/MinGW need _GNU_SOURCE with -std=c++11 and extensions off.
+if (MSVC)
+  target_compile_definitions(universe PRIVATE _USE_MATH_DEFINES)
+else()
+  target_compile_definitions(universe PRIVATE _GNU_SOURCE)
+endif()
+
 target_link_libraries(universe PUBLIC ${GLFW_TARGET} ${GLEW_TARGET} ${OPENGL_LIBRARIES})
