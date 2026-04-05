@@ -1,3 +1,0 @@
-C:/Users/whf/Desktop/20240726/Procedurus/Source/cmake-build-debug/CMakeFiles/universe.dir
-C:/Users/whf/Desktop/20240726/Procedurus/Source/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/whf/Desktop/20240726/Procedurus/Source/cmake-build-debug/CMakeFiles/rebuild_cache.dir

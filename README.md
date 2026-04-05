@@ -1,184 +1,126 @@
 # Universe
 
-一个基于 C++/OpenGL 的程序化宇宙/行星渲染项目（工程入口为 `ProcedurusMain.cpp`，窗口标题为 Procedurus）。
+`Universe` 是一个基于 `C++11 + OpenGL + GLFW + GLEW` 的程序化宇宙/行星渲染示例。当前仓库已经清理为最小可工作的跨平台版本，保留了实际参与构建和运行所需的源码、着色器与 CMake 配置。
 
-## 项目简介
-Universe 是一个实时渲染的程序化天体系统示例，包含行星地形（四叉树 LOD）、大气与云层、星空与太阳、粒子特效等模块，适合用于图形学学习与实验。
+## 依赖
 
-## 主要特性
-- 程序化行星地形（多分形噪声、四叉树 LOD）
-- 大气、云层、行星环、星空/太阳渲染
-- 基于 OpenGL 的 GLSL 着色器系统
-- 摄像机自由移动与交互拾取
-- FPS 统计与调试开关
+- CMake 3.10+
+- 支持 OpenGL 的桌面图形驱动
+- GLFW 3
+- GLEW
+- GLU
+- C++11 编译器
 
-## 技术栈与依赖
-- C++（建议 C++11 及以上）
-- OpenGL
-- GLFW 3.4
-- GLee（在 `GL/`）
-- CMake
+## 当前支持的平台
 
-## 构建与运行
-> 需要安装 GLFW 3.4，并确保 CMake 能找到 `glfw3` 配置包（可通过系统包管理、vcpkg 或源码安装）。
+- Linux: 已验证可通过 CMake 编译
+- Windows: 使用 MinGW 构建
 
-### 构建 GLFW 3.4（源码方式）
-**Windows（MinGW）**：请先配置好 MinGW 环境变量，并准备 GLFW 3.4 源码目录（示例目录名 `glfw/`）：
+## Linux 构建
+
+Ubuntu/Debian 可先安装依赖：
+
 ```bash
-cd glfw
-cmake -S . -B build -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX="./install"
-mingw32-make.exe
-mingw32-make install
+sudo apt update
+sudo apt install -y build-essential cmake libglfw3-dev libglew-dev libglu1-mesa-dev
 ```
 
-**Linux**：按以下步骤编译并安装 GLFW 3.4（示例目录名 `glfw/`）：
+构建：
+
 ```bash
-cmake -S glfw -B glfw/build -DCMAKE_INSTALL_PREFIX=glfw/build/install
-cmake --build glfw/build --config Release
-cmake --install glfw/build --config Release
+cmake -S . -B build
+cmake --build build -j
 ```
 
-### 1) 构建 Universe
+运行：
+
 ```bash
-cmake -S . -B cmake-build-release
-cmake --build cmake-build-release --config Release
+./build/universe
 ```
-> 若 CMake 找不到 `glfw3`，请设置 `CMAKE_PREFIX_PATH` 或 `glfw3_DIR` 指向 GLFW 安装目录。
 
-### 2) 运行
-- 生成的可执行文件为 `universe`（Windows 下为 `universe.exe`），通常位于构建目录中。
-- 仓库内 `bin/` 目录可能包含历史构建产物，供参考。
+如果运行时出现 `glfwInit failed`，通常不是源码问题，而是当前会话没有可用桌面图形环境、OpenGL 驱动未安装完整，或者是在受限/无头环境中启动。
 
-## 操作说明
-- `W/A/S/D`：平移移动
-- `↑/↓/←/→`：旋转视角
-- `Q/E`：滚转
-- 鼠标左键拖拽：旋转视角
-- 鼠标中键拖拽：平移
-- 鼠标右键拖拽：缩放/前后移动
-- `Esc`：退出
-- `F1`：显示/隐藏控制说明
-- `F2`：显示/隐藏轨道
-- `F3`：线框模式切换
-- `F4`：冻结 LOD
-- `F5`：时间反向
-- `0-9`：时间单位切换
-- 小键盘 `+/-`：调节地形分裂距离
-- `Del`：删除当前指向的天体并生成粒子特效
-- `R`：重置场景
-- `Alt + T/O/G/L/F/H`：调整行星地形参数（按住 `Shift` 反向调整）
+## Windows 构建
 
-## 目录结构
+使用 `MSYS2 MinGW64`。
+
+1. 安装 `MSYS2`
+2. 打开 `MSYS2 MinGW 64-bit` 终端
+3. 安装依赖
+
+```bash
+pacman -S --needed \
+  mingw-w64-x86_64-toolchain \
+  mingw-w64-x86_64-cmake \
+  mingw-w64-x86_64-ninja \
+  mingw-w64-x86_64-glfw \
+  mingw-w64-x86_64-glew \
+  mingw-w64-x86_64-glu
+```
+
+4. 配置并构建
+
+```bash
+cmake -S . -B build -G Ninja
+cmake --build build
+```
+
+5. 运行
+
+```bash
+./build/universe.exe
+```
+
+如果 `GLEW` 或 `glfw3` 未被找到，优先检查：
+
+- 是否在 `MSYS2 MinGW 64-bit` 终端里运行，而不是普通 `MSYS` 终端
+- `mingw-w64-x86_64-*` 依赖是否安装完整
+- `cmake` 是否来自 MinGW 环境而不是其他 Windows 安装
+
+## 项目结构
+
 ```text
 Universe/
 |-- Application/
-|   |-- Application.h
-|   |-- Camera.h
-|   |-- FpsCounter.h
-|   |-- TextTool.cpp
-|   `-- TextTool.h
 |-- Geometry/
-|   |-- AstronomicalObject.cpp
-|   |-- AstronomicalObject.h
-|   |-- Atmosphere.cpp
-|   |-- Atmosphere.h
-|   |-- CloudLayer.cpp
-|   |-- CloudLayer.h
-|   |-- Frustum.cpp
-|   |-- Frustum.h
-|   |-- Geometry.cpp
-|   |-- Geometry.h
-|   |-- Particle2D.cpp
-|   |-- Particle2D.h
-|   |-- Planet.cpp
-|   |-- Planet.h
-|   |-- PlanetRing.cpp
-|   |-- PlanetRing.h
-|   |-- QuadtreeTerrain/
-|   |   |-- QuadtreeTerrain.cpp
-|   |   |-- QuadtreeTerrain.h
-|   |   |-- QuadtreeTerrainFace.cpp
-|   |   |-- QuadtreeTerrainFace.h
-|   |   |-- QuadtreeTerrainNode.cpp
-|   |   |-- QuadtreeTerrainNode.h
-|   |   |-- QuadtreeTerrainPatch.cpp
-|   |   |-- QuadtreeTerrainPatch.h
-|   |   |-- QuadtreeTerrainPatchTopology.cpp
-|   |   |-- QuadtreeTerrainPatchTopology.h
-|   |   |-- RidgedMultifractalSphericalQuadtreeTerrain.cpp
-|   |   |-- RidgedMultifractalSphericalQuadtreeTerrain.h
-|   |   |-- SphericalQuadtreeTerrain.cpp
-|   |   `-- SphericalQuadtreeTerrain.h
-|   |-- SimpleCircle.cpp
-|   |-- SimpleCircle.h
-|   |-- SimpleCylinder.cpp
-|   |-- SimpleCylinder.h
-|   |-- SimpleDisk.cpp
-|   |-- SimpleDisk.h
-|   |-- SimpleSphere.cpp
-|   |-- SimpleSphere.h
-|   |-- Skybox.cpp
-|   |-- Skybox.h
-|   |-- Star.cpp
-|   |-- Star.h
-|   |-- Starfield.cpp
-|   |-- Starfield.h
-|-- Shaders/
-|   |-- GLSL/
-|   |   |-- atmosphere.frag
-|   |   |-- atmosphere.vert
-|   |   |-- axis.frag
-|   |   |-- axis.vert
-|   |   |-- cloud_texture.frag
-|   |   |-- cloud_texture.vert
-|   |   |-- clouds.frag
-|   |   |-- clouds.vert
-|   |   |-- patch_normalmap_heightmap.frag
-|   |   |-- patch_normalmap_heightmap.vert
-|   |   |-- patch_positionmap.frag
-|   |   |-- patch_positionmap.vert
-|   |   |-- perlin.frag
-|   |   |-- planet.frag
-|   |   |-- planet.vert
-|   |   |-- planet_ring.frag
-|   |   |-- planet_ring.vert
-|   |   |-- ShaderSources.cpp
-|   |   |-- ShaderSources.h
-|   |   |-- skybox_texture.frag
-|   |   |-- skybox_texture.vert
-|   |   |-- star.frag
-|   |   |-- star.vert
-|   |   |-- sun.frag
-|   |   `-- sun.vert
-|   |-- ShaderManager.cpp
-|   `-- ShaderManager.h
-|-- Math/
-|   |-- PerlinNoise.h
-|   |-- Randomizer.cpp
-|   |-- Randomizer.h
-|   |-- VectorMath/
-|   |   |-- Matrix2x2.h
-|   |   |-- Matrix3x3.h
-|   |   |-- Matrix4x4.h
-|   |   |-- Vector2.h
-|   |   |-- Vector3.h
-|   |   `-- Vector4.h
-|   `-- VectorMath.h
+|   `-- QuadtreeTerrain/
 |-- GL/
-|   |-- GLee.c
-|   `-- GLee.h
-|-- bin/                   # 可能包含历史构建产物
-|-- cmake-build-debug/     # 本地构建目录
-|-- obj/                   # 旧版构建产物
-|-- lib/
-|-- Procedurus.cbp
-|-- Procedurus.depend
-|-- Procedurus.layout
-|-- ProcedurusMain.cpp     # 入口
+|   `-- OpenGL.h
+|-- Math/
+|   `-- VectorMath/
+|-- Shaders/
+|   `-- GLSL/
 |-- CMakeLists.txt
-|-- LICENSE
-`-- README.md
+|-- ProcedurusMain.cpp
+|-- README.md
+`-- LICENSE
 ```
 
+## 运行说明
+
+- `W/A/S/D`: 平移移动
+- `↑/↓/←/→`: 旋转视角
+- `Q/E`: 滚转
+- 鼠标左键拖拽: 旋转视角
+- 鼠标中键拖拽: 平移
+- 鼠标右键拖拽: 缩放/前后移动
+- `Esc`: 退出
+- `F1`: 显示/隐藏控制说明
+- `F2`: 显示/隐藏轨道
+- `F3`: 线框模式切换
+- `F4`: 冻结 LOD
+- `F5`: 时间反向
+- `0-9`: 时间单位切换
+- 小键盘 `+/-`: 调节地形分裂距离
+- `Del`: 删除当前指向的天体并生成粒子特效
+- `R`: 重置场景
+- `Alt + T/O/G/L/F/H`: 调整行星地形参数，按住 `Shift` 反向调整
+
+## 说明
+
+- 仓库不再包含历史构建目录、旧 IDE 工程文件和过时的 `GLee` 代码
+- 当前推荐的唯一构建入口是 `CMakeLists.txt`
+
 ## 许可证
+
 详见 `LICENSE`。

@@ -9,7 +9,7 @@
 #ifndef SIMPLECYLINDER_H_INCLUDED
 #define SIMPLECYLINDER_H_INCLUDED
 
-#include "../GL/GLee.h"
+#include "../GL/OpenGL.h"
 
 class SimpleCylinder
 {

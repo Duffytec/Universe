@@ -15,7 +15,7 @@
 #define QUADTREETERRAINPATCHTOPOLOGY_H_INCLUDED
 
 #include <vector>
-#include "../../GL/GLee.h"
+#include "../../GL/OpenGL.h"
 #include <GL/gl.h>
 #include "../../Math/VectorMath.h"
 

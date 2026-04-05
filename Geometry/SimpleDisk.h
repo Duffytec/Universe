@@ -9,7 +9,7 @@
 #ifndef SIMPLEDISK_H_INCLUDED
 #define SIMPLEDISK_H_INCLUDED
 
-#include "../GL/GLee.h"
+#include "../GL/OpenGL.h"
 
 class SimpleDisk
 {

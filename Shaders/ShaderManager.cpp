@@ -26,7 +26,7 @@ void ShaderManager::ReportErrors(const GLuint handle, const bool isProgram)
     glGetShaderInfoLog(handle, sizeof(messageString), &messageLength, messageString);
   }
   if (messageLength > 0)
-    printf(messageString);
+    printf("%s", messageString);
 }
 
 void ShaderManager::Initialize()

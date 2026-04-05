@@ -15,7 +15,7 @@
 #include <GLFW/glfw3.h>
 
 #include "../Shaders/ShaderManager.h"
-#include <GL/glu.h>
+#include "../GL/OpenGL.h"
 #include "../Geometry/Skybox.h"
 #include "../Geometry/Planet.h"
 #include "../Geometry/Star.h"

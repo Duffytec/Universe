@@ -64,6 +64,18 @@ int main(int argc, char *argv[]) {
     // Make the context current
     glfwMakeContextCurrent(window);
 
+    glewExperimental = GL_TRUE;
+    const GLenum glewStatus = glewInit();
+    if (glewStatus != GLEW_OK) {
+        cout << "glewInit failed: " << glewGetErrorString(glewStatus) << endl;
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return 3;
+    }
+
+    // glewInit can emit a benign GL_INVALID_ENUM on compatibility contexts.
+    glGetError();
+
     // Enable mouse cursor
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 

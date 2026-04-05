@@ -9,7 +9,7 @@
 #ifndef SIMPLESPHERE_H_INCLUDED
 #define SIMPLESPHERE_H_INCLUDED
 
-#include "../GL/GLee.h"
+#include "../GL/OpenGL.h"
 
 class SimpleSphere
 {
