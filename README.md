@@ -1,13 +1,11 @@
 # Universe
 
-`Universe` 是一个基于 `C++11 + OpenGL + GLFW + GLEW` 的程序化宇宙/行星渲染示例。当前仓库已经清理为最小可工作的跨平台版本，保留了实际参与构建和运行所需的源码、着色器与 CMake 配置。
+`Universe` 是一个基于 `C++11 + OpenGL + GLFW + GLEW` 的程序化宇宙/行星渲染示例。仓库现在已经内置 `GLFW` 和 `GLEW` 源码，`git pull` 后会优先使用 `third_party/` 里的依赖进行构建。
 
 ## 依赖
 
-- CMake 3.10+
+- CMake 3.16+
 - 支持 OpenGL 的桌面图形驱动
-- GLFW 3
-- GLEW
 - GLU
 - C++11 编译器
 
@@ -18,11 +16,19 @@
 
 ## Linux 构建
 
-Ubuntu/Debian 可先安装依赖：
+Ubuntu/Debian 可先安装构建工具和系统 OpenGL/X11 依赖：
 
 ```bash
 sudo apt update
-sudo apt install -y build-essential cmake libglfw3-dev libglew-dev libglu1-mesa-dev
+sudo apt install -y \
+  build-essential \
+  cmake \
+  libglu1-mesa-dev \
+  libx11-dev \
+  libxrandr-dev \
+  libxinerama-dev \
+  libxcursor-dev \
+  libxi-dev
 ```
 
 构建：
@@ -42,7 +48,7 @@ cmake --build build -j
 
 ## Windows 构建
 
-使用 `MSYS2 MinGW64`。
+使用 `MSYS2 MinGW64`。仓库已自带 `GLFW` 和 `GLEW`，Windows 不需要再单独安装这两个库。
 
 1. 安装 `MSYS2`
 2. 打开 `MSYS2 MinGW 64-bit` 终端
@@ -52,10 +58,7 @@ cmake --build build -j
 pacman -S --needed \
   mingw-w64-x86_64-toolchain \
   mingw-w64-x86_64-cmake \
-  mingw-w64-x86_64-ninja \
-  mingw-w64-x86_64-glfw \
-  mingw-w64-x86_64-glew \
-  mingw-w64-x86_64-glu
+  mingw-w64-x86_64-ninja
 ```
 
 4. 配置并构建
@@ -71,10 +74,9 @@ cmake --build build
 ./build/universe.exe
 ```
 
-如果 `GLEW` 或 `glfw3` 未被找到，优先检查：
+如果 Windows 上仍然报 `glfw3` 或 `GLEW` 未找到，优先检查：
 
 - 是否在 `MSYS2 MinGW 64-bit` 终端里运行，而不是普通 `MSYS` 终端
-- `mingw-w64-x86_64-*` 依赖是否安装完整
 - `cmake` 是否来自 MinGW 环境而不是其他 Windows 安装
 
 ## 项目结构
@@ -90,6 +92,9 @@ Universe/
 |   `-- VectorMath/
 |-- Shaders/
 |   `-- GLSL/
+|-- third_party/
+|   |-- glfw/
+|   `-- glew/
 |-- CMakeLists.txt
 |-- ProcedurusMain.cpp
 |-- README.md
@@ -120,6 +125,7 @@ Universe/
 
 - 仓库不再包含历史构建目录、旧 IDE 工程文件和过时的 `GLee` 代码
 - 当前推荐的唯一构建入口是 `CMakeLists.txt`
+- `CMake` 会优先使用仓库内置的 `third_party/glfw` 和 `third_party/glew`
 
 ## 许可证
 
